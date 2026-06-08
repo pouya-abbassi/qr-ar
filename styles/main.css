@@ -1,0 +1,11 @@
+body { margin: 0; overflow: hidden; font-family: monospace; }
+#info {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: black;
+    color: white;
+    padding: 10px;
+    z-index: 100;
+    border-radius: 8px;
+}

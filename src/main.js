@@ -1,5 +1,8 @@
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
 import { scanImageData } from '@undecaf/zbar-wasm';
+import { FourPointsControls } from 'four-points-controls';
 
 var video = document.createElement("video");
 var canvasElement = document.getElementById("canvas");
@@ -33,53 +36,65 @@ async function findZbarWasm(imageData) {
   const symbols = await scanImageData(imageData);
   if (symbols.length == 0) {
     infoMessage.hidden = true;
+    controls.visible = false;
   } else {
+    controls.visible = true;
     infoMessage.hidden = false;
     symbols.forEach(symbol => {
       const points = symbol.points;
+      const normalized = [];
       const data = symbol.decode('utf-8');
       infoMessage.innerText = data;
-      drawLine(canvas, points[0], points[1], "#FF0000");
-      drawLine(canvas, points[1], points[2], "#FF0000");
-      drawLine(canvas, points[2], points[3], "#FF0000");
-      drawLine(canvas, points[3], points[0], "#FF0000");
-      writeText(canvas, points[1], points[2], data, "#00FF00");
-      writeText(canvas, points[0], points[2], `${points[0].x} x ${points[0].y}`, "#0000FF");
+
+      // For debugging
+      // drawLine(canvas, { x: 0, y: 0 }, points[0], "#FF0000");
+      // drawLine(canvas, { x: 0, y: canvasElement.height }, points[1], "#FF0000");
+      // drawLine(canvas, { x: canvasElement.width, y: canvasElement.height }, points[2], "#FF0000");
+      // drawLine(canvas, { x: canvasElement.width, y: 0 }, points[3], "#FF0000");
+      // writeText(canvas, points[1], points[2], data, "#00FF00");
+
+      points.forEach(p => {
+        normalized.push((p.x / canvasElement.width) * 2 - 1);
+        normalized.push(-((p.y / canvasElement.height) * 2 - 1));
+      });
+      controls.points = [
+        new THREE.Vector2(normalized[6], normalized[7]),
+        new THREE.Vector2(normalized[4], normalized[5]),
+        new THREE.Vector2(normalized[2], normalized[3]),
+        new THREE.Vector2(normalized[0], normalized[1]),
+      ];
     });
   }
-}
-
-function tick() {
-  infoMessage.innerText = "⌛ Loading video..."
-  if (video.readyState === video.HAVE_ENOUGH_DATA) {
-    infoMessage.hidden = true;
-    infoMessage.innerText = '';
-    canvasElement.hidden = false;
-
-    canvasElement.width = video.videoWidth;
-    canvasElement.height = video.videoHeight;
-    canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
-    var imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
-
-    findZbarWasm(imageData);
-  }
-  requestAnimationFrame(tick);
 }
 
 // Basic Three.js Scene Setup
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 2000);
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor(0x0);
 renderer.setClearAlpha(0x0);
 document.body.appendChild(renderer.domElement);
 
-// Add a simple rotating cube to verify Three.js is working
-const geometry = new THREE.BoxGeometry(1, 1, 1);
-const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
-const cube = new THREE.Mesh(geometry, material);
-scene.add(cube);
+// const mesh = new THREE.BoxHelper(new THREE.Mesh(geometry), 0x77ff00); // For debug
+const mesh = new THREE.Group();
+scene.add(mesh);
+
+new GLTFLoader().load('/assets/duck.glb', function(gltf) {
+  gltf.scene.scale.setScalar(0.7);
+  gltf.scene.rotation.x = Math.PI / 2;
+  gltf.scene.traverse(fixDuckingNormals);
+  mesh.add(gltf.scene);
+});
+
+// const controls = FourPointsControls(camera, renderer.domElement); // For debugging
+const controls = FourPointsControls(camera);
+controls.method = FourPointsControls.exact4;
+
+controls.visible = false;
+controls.add(mesh);
+scene.add(controls);
 
 // Add lights
 const light = new THREE.DirectionalLight(0xffffff, 1);
@@ -88,14 +103,11 @@ scene.add(light);
 const ambientLight = new THREE.AmbientLight(0x404060);
 scene.add(ambientLight);
 
-camera.position.z = 30;
+camera.position.z = 10;
 
 // Animation loop
 function animate() {
-  cube.rotation.x += 0.01;
-  cube.rotation.y += 0.01;
-
-  infoMessage.innerText = "⌛ Loading video..."
+  infoMessage.innerText = "Loading video..."
   if (video.readyState === video.HAVE_ENOUGH_DATA) {
     infoMessage.hidden = true;
     infoMessage.innerText = '';
@@ -113,3 +125,11 @@ function animate() {
   requestAnimationFrame(animate);
 }
 animate();
+
+function fixDuckingNormals(o) {
+  if (o.geometry) {
+    delete o.geometry.attributes.normal;
+    o.geometry = mergeVertices(o.geometry);
+    o.geometry.computeVertexNormals();
+  }
+}

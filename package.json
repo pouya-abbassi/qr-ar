@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@undecaf/zbar-wasm": "^0.11.0",
+    "four-points-controls": "^0.1.1",
     "three": "^0.184.0"
   }
 }

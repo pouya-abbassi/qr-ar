@@ -27,7 +27,6 @@ navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment", width:
   video.srcObject = stream;
   video.setAttribute("playsinline", true); // required to tell iOS safari we don't want fullscreen
   video.play();
-  requestAnimationFrame(tick);
 });
 
 async function findZbarWasm(imageData) {
@@ -70,7 +69,7 @@ function tick() {
 // Basic Three.js Scene Setup
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 2000);
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor(0x0);
 renderer.setClearAlpha(0x0);
@@ -93,9 +92,24 @@ camera.position.z = 30;
 
 // Animation loop
 function animate() {
-  requestAnimationFrame(animate);
   cube.rotation.x += 0.01;
   cube.rotation.y += 0.01;
+
+  infoMessage.innerText = "⌛ Loading video..."
+  if (video.readyState === video.HAVE_ENOUGH_DATA) {
+    infoMessage.hidden = true;
+    infoMessage.innerText = '';
+    canvasElement.hidden = false;
+
+    canvasElement.width = video.videoWidth;
+    canvasElement.height = video.videoHeight;
+    canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
+    var imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
+
+    findZbarWasm(imageData);
+  }
+
   renderer.render(scene, camera);
+  requestAnimationFrame(animate);
 }
 animate();

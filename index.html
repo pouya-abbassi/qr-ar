@@ -7,8 +7,15 @@
     <link rel="stylesheet" type="text/css" href="/styles/main.css">
   </head>
   <body>
-    <div id="info">
-      JSQR + ThreeJS
+    <canvas id="canvas" hidden></canvas>
+    <div id="output">
+      <div id="info">
+        ZBar-WASM + ThreeJS
+      </div>
+      <div hidden>
+        <b>Data:</b>
+        <span id="outputData"></span>
+      </div>
     </div>
     <script type="module" src="/src/main.js"></script>
   </body>

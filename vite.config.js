@@ -7,13 +7,13 @@ export default defineConfig({
       algorithm: 'gzip',
       deleteOriginalAssets: false,
       threshold: 10240,
-      include: /\.(js|css|html|json|svg|xml)$/i,
+      include: /\.(js|css|html|json|svg|xml|wasm)$/i,
     }),
     compression({
       algorithm: 'brotliCompress',
       deleteOriginalAssets: false,
       threshold: 10240,
-      include: /\.(js|css|html|json|svg|xml)$/i,
+      include: /\.(js|css|html|json|svg|xml|wasm)$/i,
     }),
   ],
 });

@@ -14,7 +14,7 @@ import {
   getInterpolatedCorners
 } from './smoothing.js';
 import { drawDebugBorders, drawDebugLines } from './utils.js';
-import { SMOOTHING } from './config.js';
+import { SMOOTHING, isLocalhost } from './config.js';
 import * as THREE from 'three';
 
 let controlsRef = null;
@@ -35,7 +35,9 @@ export async function findZbarWasm(imageData) {
   const canvas = canvasContextRef;
   const canvasElement = canvasElementRef;
 
-  drawDebugBorders(canvas, canvasElement.width, canvasElement.height);
+  if (isLocalhost) {
+    drawDebugBorders(canvas, canvasElement.width, canvasElement.height);
+  }
 
   const symbols = await scanImageData(imageData);
 
@@ -57,7 +59,9 @@ export async function findZbarWasm(imageData) {
       }
       if (controlsRef) controlsRef.visible = true;
 
-      drawDebugLines(canvas, canvasElement.width, canvasElement.height, rawPoints, data);
+      if (isLocalhost) {
+        drawDebugLines(canvas, canvasElement.width, canvasElement.height, rawPoints, data);
+      }
 
       return true;
     }

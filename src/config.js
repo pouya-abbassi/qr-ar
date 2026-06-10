@@ -20,7 +20,7 @@ export const THREE_SETUP = {
 };
 
 export const MODEL = {
-  PATH: '/3d/duck.glb',
+  PATH: './3d/duck.glb',
   SCALE: 0.7,
   ROTATION_X: Math.PI / 2,
 };

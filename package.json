@@ -14,8 +14,7 @@
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
-    "vite": "^8.0.16",
-    "vite-plugin-compression2": "^2.5.3"
+    "vite": "^8.0.16"
   },
   "dependencies": {
     "@undecaf/zbar-wasm": "^0.11.0",

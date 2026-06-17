@@ -19,12 +19,6 @@ export const THREE_SETUP = {
   CAMERA_POSITION_Z: 10,
 };
 
-export const MODEL = {
-  PATH: './3d/duck.glb',
-  SCALE: 0.7,
-  ROTATION_X: Math.PI / 2,
-};
-
 export const isLocalhost =
   window.location.hostname === 'localhost' ||
   window.location.hostname === '127.0.0.1' ||

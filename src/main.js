@@ -20,8 +20,11 @@ setupLights(scene);
 const controls = setupControls(camera, mesh);
 scene.add(controls);
 
+// Get model data from URL fragment
+const fragment = window.location.hash.substring(1);
+
 // Load 3D model
-loadModel(mesh).catch(console.error);
+loadModel(mesh, fragment).catch(console.error);
 
 // Initialize QR Scanner
 initQRScanner(controls, canvasElement, infoMessage);

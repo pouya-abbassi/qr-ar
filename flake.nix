@@ -14,8 +14,6 @@
         devShells.default = pkgs.mkShell {
           buildInputs = (with pkgs; [
             nodejs_25
-            rustywind
-            http-server
           ]);
           PUPPETEER_SKIP_DOWNLOAD = true;
         };

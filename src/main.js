@@ -2,7 +2,7 @@
 import * as THREE from 'three';
 import { setupCamera } from './camera.js';
 import { setupThree, setupLights, setupControls, handleResize } from './three-setup.js';
-import { loadModel } from './model-loader.js';
+import { createObject } from './model-loader.js';
 import { initQRScanner, findZbarWasm, updateControlsFromSmoothedCorners } from './qr-scanner.js';
 import { resetSmoothing, setCurrentSmoothedCorners } from './smoothing.js';
 
@@ -10,6 +10,7 @@ import { resetSmoothing, setCurrentSmoothedCorners } from './smoothing.js';
 const canvasElement = document.getElementById("canvas");
 const infoMessage = document.getElementById("info");
 const video = document.createElement("video");
+const userVideo = document.createElement('video');
 
 // Initialize Three.js
 const { scene, camera, renderer } = setupThree();
@@ -24,10 +25,10 @@ scene.add(controls);
 const fragment = window.location.hash.substring(1);
 
 // Load 3D model
-loadModel(mesh, fragment).catch(console.error);
+createObject(mesh, fragment, userVideo).catch(console.error);
 
 // Initialize QR Scanner
-initQRScanner(controls, canvasElement, infoMessage);
+initQRScanner(controls, canvasElement, infoMessage, userVideo);
 
 // Setup camera
 setupCamera(video).catch(console.error);

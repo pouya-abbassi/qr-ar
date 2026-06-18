@@ -21,12 +21,14 @@ let controlsRef = null;
 let canvasElementRef = null;
 let canvasContextRef = null;
 let infoMessageRef = null;
+let userVideoRef = null;
 
-export function initQRScanner(controls, canvasElement, infoMessage) {
+export function initQRScanner(controls, canvasElement, infoMessage, userVideo) {
   controlsRef = controls;
   canvasElementRef = canvasElement;
   canvasContextRef = canvasElement.getContext("2d");
   infoMessageRef = infoMessage;
+  userVideoRef = userVideo;
 }
 
 export async function findZbarWasm(imageData) {
@@ -56,6 +58,7 @@ export async function findZbarWasm(imageData) {
       if (infoMessageRef) {
         infoMessageRef.innerText = data;
         infoMessageRef.hidden = false;
+        userVideoRef.play();
       }
       if (controlsRef) controlsRef.visible = true;
 
@@ -68,7 +71,10 @@ export async function findZbarWasm(imageData) {
   } else {
     const lastValidTime = getLastValidTime();
     if (Date.now() - lastValidTime >= SMOOTHING.FALLBACK_TIME) {
-      if (infoMessageRef) infoMessageRef.hidden = true;
+      if (infoMessageRef) {
+        infoMessageRef.hidden = true;
+        userVideoRef.pause();
+      }
       if (controlsRef) controlsRef.visible = false;
       resetSmoothing();
     }
